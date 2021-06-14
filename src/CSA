@@ -1,0 +1,119 @@
+public class main {
+    static short[] instructionMemory = new short[1024];
+    static byte[] dataMemory= new byte[2048];
+    static byte[] GPRS=new byte[64];
+    static byte SREG;
+    static short PC=0;
+    static int cycles=0;
+    public static void main(String[] args){
+
+    }
+
+    public static void fetch(){
+        int instruction=instructionMemory[PC];
+        decode(instruction);
+
+    }
+
+    public static void decode(int instruction){
+        boolean rType=false;
+        byte r1Register;
+        byte r2Register;
+        int maskingValueOpcode = 0b1111000000000000;
+        int opcode= (instruction & maskingValueOpcode) ;
+        // System.out.println(Integer.toBinaryString(0xFFFF & opcode));
+        opcode=(opcode>>>12);
+        // System.out.println(Integer.toBinaryString(0xFFFF & opcode));
+        //System.out.println(opcodeShort);
+        int maskingValueR1=0b0000111111000000;
+        int r1= (instruction & maskingValueR1) ;
+        r1=(r1>>>6);
+        //
+        int maskingValueR2IMM=0b111111;
+        int r2IMM= (instruction & maskingValueR2IMM) ;
+
+        if(opcode==0||opcode==1||opcode==2||opcode==6||opcode==7){
+            rType=true;
+        }
+        r1Register=GPRS[r1];
+
+        if(rType){
+            r2Register=GPRS[r2IMM];
+        }
+        PC++;
+    }
+
+    public static void execute(byte opcode,int r1Register, int r2RegisterImm
+            ,byte r1,byte r2imm,boolean rType){
+        switch(opcode){
+            case 0:{ //ADD
+                int sumValue=r1Register+r2RegisterImm;
+                setCarry(sumValue);
+                GPRS[r1]= (byte) sumValue;
+                break;
+            }
+            case 1:{ //SUB
+                GPRS[r1]=(byte)(r1Register-r2RegisterImm);
+                break;} //sub
+            case 2: GPRS[r1]=(byte)(r1Register*r2RegisterImm);break; //multiply
+            case 3: GPRS[r1]=(byte)(r2RegisterImm);break; //
+            case 4: break;
+            case 5: break;
+            case 6: break;
+            case 7: break;
+            case 8: break;
+            case 9: break;
+            case 10: break;
+            case 11: break;
+            default:
+
+        }
+    }
+
+    public static void setCarry(int sumValue){
+        if(sumValue>Byte.MAX_VALUE)
+            SREG=(byte)(SREG|0b00010000);
+        else{
+            SREG=(byte)(SREG&0b11101111);
+        }
+    }
+
+    public static void setOverflow(byte r1Register, byte r2Register){
+        if((r1Register<0 && r2Register>=0)||(r2Register<0 && r1Register>=0)){
+            SREG=(byte)(SREG&0b11110111);
+        }else{
+            SREG=(byte)(SREG|0b00001000);
+        }
+
+
+    }
+
+    public static void setNegativeFlag(short sumValue){
+        if(sumValue<0)
+            SREG=(byte)(SREG|0b00000100);
+        else{
+            SREG=(byte)(SREG&0b11111011);
+        }
+    }
+
+    public static void signFlag(int sumValue){
+        if(sumValue>Byte.MAX_VALUE)
+            SREG=(byte)(SREG|0b00010000);
+        else{
+            SREG=(byte)(SREG&0b11101111);
+        }
+    }
+
+    public static void zeroFlag(int sumValue){
+        if(sumValue>Byte.MAX_VALUE)
+            SREG=(byte)(SREG|0b00010000);
+        else{
+            SREG=(byte)(SREG&0b11101111);
+        }
+    }
+
+
+
+
+
+}
