@@ -1,4 +1,4 @@
-public class main {
+public class CSA {
     static short[] instructionMemory = new short[1024];
     static byte[] dataMemory= new byte[2048];
     static byte[] GPRS=new byte[64];
